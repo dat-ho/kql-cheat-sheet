@@ -1,5 +1,4 @@
-
-🔍 User Activity Investigation
+User Activity Investigation
 
 // Sign-in activity (Azure AD)
 SigninLogs
@@ -13,7 +12,7 @@ AuditLogs
 | where Identity == "user@example.com"
 | project TimeGenerated, OperationName, Result, TargetResources, InitiatedBy
 
-🖥️ Device & Endpoint Activity
+Device & Endpoint Activity
 
 // All activity on a device
 DeviceEvents
@@ -33,7 +32,7 @@ DeviceFileEvents
 | where InitiatingProcessAccountName == "username"
 | project TimeGenerated, FileName, FolderPath, ActionType, DeviceName
 
-🌐 Network & Web Activity
+Network & Web Activity
 
 // Suspicious network connections
 DeviceNetworkEvents
@@ -47,7 +46,7 @@ DeviceNetworkEvents
 | where ActionType == "DnsQuery"
 | project TimeGenerated, DeviceName, RemoteUrl, InitiatingProcessFileName
 
-📧 Email Investigation
+Email Investigation
 
 // Email delivery and click events
 EmailEvents
@@ -61,7 +60,7 @@ EmailUrlInfo
 | where ClickAction == "Clicked"
 | project TimeGenerated, Url, ClickAction, RecipientEmailAddress
 
-🚨 Alert Investigation
+Alert Investigation
 
 // Alerts triggered by Defender
 SecurityAlert

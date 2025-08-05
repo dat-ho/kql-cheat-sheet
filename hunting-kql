@@ -1,0 +1,78 @@
+
+🔍 User Activity Investigation
+
+// Sign-in activity (Azure AD)
+SigninLogs
+| where TimeGenerated > ago(7d)
+| where UserPrincipalName == "user@example.com"
+| project TimeGenerated, UserPrincipalName, AppDisplayName, IPAddress, Location, Status
+
+// Audit logs (user actions in Azure AD)
+AuditLogs
+| where TimeGenerated > ago(7d)
+| where Identity == "user@example.com"
+| project TimeGenerated, OperationName, Result, TargetResources, InitiatedBy
+
+🖥️ Device & Endpoint Activity
+
+// All activity on a device
+DeviceEvents
+| where TimeGenerated > ago(7d)
+| where DeviceName == "DEVICE-NAME"
+| sort by TimeGenerated desc
+
+// Process creation events
+DeviceProcessEvents
+| where TimeGenerated > ago(7d)
+| where InitiatingProcessAccountName == "username"
+| project TimeGenerated, DeviceName, FileName, ProcessCommandLine, InitiatingProcessFileName
+
+// File creation or modification
+DeviceFileEvents
+| where TimeGenerated > ago(7d)
+| where InitiatingProcessAccountName == "username"
+| project TimeGenerated, FileName, FolderPath, ActionType, DeviceName
+
+🌐 Network & Web Activity
+
+// Suspicious network connections
+DeviceNetworkEvents
+| where TimeGenerated > ago(7d)
+| where RemoteUrl contains ".xyz" or RemoteIPType == "Public"
+| project TimeGenerated, DeviceName, RemoteUrl, RemoteIP, InitiatingProcessFileName
+
+// DNS queries
+DeviceNetworkEvents
+| where TimeGenerated > ago(7d)
+| where ActionType == "DnsQuery"
+| project TimeGenerated, DeviceName, RemoteUrl, InitiatingProcessFileName
+
+📧 Email Investigation
+
+// Email delivery and click events
+EmailEvents
+| where TimeGenerated > ago(7d)
+| where SenderFromAddress == "attacker@example.com" or RecipientEmailAddress == "user@example.com"
+| project TimeGenerated, Subject, SenderFromAddress, RecipientEmailAddress, DeliveryAction, ThreatTypes
+
+// Email URL clicks (phishing investigation)
+EmailUrlInfo
+| where TimeGenerated > ago(7d)
+| where ClickAction == "Clicked"
+| project TimeGenerated, Url, ClickAction, RecipientEmailAddress
+
+🚨 Alert Investigation
+
+// Alerts triggered by Defender
+SecurityAlert
+| where TimeGenerated > ago(7d)
+| where Entities has "user@example.com" or Entities has "DEVICE-NAME"
+| project TimeGenerated, AlertName, Severity, Description, Entities
+
+// Correlate alerts with device events
+SecurityAlert
+| join kind=inner (
+    DeviceEvents
+    | where TimeGenerated > ago(7d)
+) on $left.DeviceName == $right.DeviceName
+| project TimeGenerated, AlertName, ActionType, FileName, InitiatingProcessFileName
